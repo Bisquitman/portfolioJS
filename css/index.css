@@ -5,16 +5,16 @@ html {
 }
 
 body {
-	margin: 0
+	margin: 0;
 }
 
 main {
-	display: block
+	display: block;
 }
 
 h1 {
 	font-size: 2em;
-	margin: .67em 0
+	margin: .67em 0;
 }
 
 hr {
@@ -22,12 +22,12 @@ hr {
 	-moz-box-sizing: content-box;
 	box-sizing: content-box;
 	height: 0;
-	overflow: visible
+	overflow: visible;
 }
 
 pre {
 	font-family: monospace, monospace;
-	font-size: 1em
+	font-size: 1em;
 }
 
 a {
@@ -44,7 +44,7 @@ abbr[title] {
 
 b,
 strong {
-	font-weight: bolder
+	font-weight: bolder;
 }
 
 code,
