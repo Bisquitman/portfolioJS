@@ -1,6 +1,8 @@
 // Отключение скролла при появлении модального окна
 const disableScroll = () => {
   const scrollWidth = window.innerWidth - document.body.offsetWidth;
+  // Фикс "скачка" слева при вкл/выкл скролла
+  document.querySelector('.page__header').style.left = `calc(50% - ${720 + scrollWidth / 2}px)`;
 
   document.body.scrollPosition = window.scrollY;
   document.documentElement.style.cssText = `position: relative; height: 100vh;`;
@@ -18,6 +20,7 @@ const disableScroll = () => {
 const enableScroll = () => {
   document.documentElement.style.cssText = '';
   document.body.style.cssText = "position: relative;";
+  document.querySelector('.page__header').style.left = '';  // Фикс "скачка" слева при вкл/выкл скролла
   window.scroll({ top: document.body.scrollPosition });
 };
 // ----------------------------------------------------------------
@@ -138,5 +141,80 @@ const enableScroll = () => {
     pageOverlay.textContent = '';
     enableScroll();
   });
+}
+//----------------------------------------------------------------
+
+{ // Создание карточек на основе данных из JSON
+  const COUNT_CARD = 2;
+  const portfolioList = document.querySelector('.portfolio__list');
+  const portfolioAdd = document.querySelector('.portfolio__add');
+
+  const getData = () => {
+    return fetch('db.json')
+      .then((response) => {
+        if (response.ok === true) {
+          return response.json();
+        } else {
+          throw `Что-то пошло не так! Ошибка: ${response.status}`;
+        }
+      })
+      .catch((error) => console.error(error));
+  };
+
+  const createStore = async () => {
+    const data = await getData();
+    return {
+      data: data,
+      counter: 0,
+      count: COUNT_CARD,
+      get length() {
+        return this.data.length;
+      },
+      get cardData() {
+        const renderData = this.data.slice(this.counter, this.counter + this.count);
+        this.counter += renderData.length;
+        return renderData;
+      }
+    };
+  };
+
+  const renderCard = (data) => {
+    const cards = data.map((item) => {
+      const { preview, year, type, client, image } = item;
+      const li = document.createElement('li');
+      li.classList.add('portfolio__item');
+      li.innerHTML = `
+        <article class="card" tabindex="0" role="button" aria-label="открыть макет" data-full-image="${image}">
+          <picture class="card__picture">
+            <source srcset="${preview}.avif" type="image/avif">
+            <source srcset="${preview}.webp" type="image/webp">
+            <img src="${preview}.jpg" alt="превью iphone" width="166" height="103">
+          </picture>
+
+          <p class="card__data">
+            <span class="card__client">Клиент: ${client}</span>
+            <time class="card__date" datetime="${year}">год: ${year}</time>
+          </p>
+
+          <h3 class="card__title">${type}</h3>
+        </article>
+      `;
+      return li;
+    });
+    portfolioList.append(...cards);
+  };
+
+  const initPortfolio = async () => {
+    const store = await createStore();
+    renderCard(store.cardData);
+    portfolioAdd.addEventListener('click', () => {
+      renderCard(store.cardData);
+
+      if (store.length === store.counter) {
+        portfolioAdd.remove();
+      }
+    });
+  };
+  initPortfolio();
 }
 //----------------------------------------------------------------
